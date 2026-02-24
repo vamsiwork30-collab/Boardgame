@@ -1,11 +1,14 @@
-FROM openjdk:17-alpine
-        
+# Use modern supported Java image
+FROM eclipse-temurin:17-jdk-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Copy jar file from target folder
+COPY target/*.jar app.jar
+
+# Expose application port
 EXPOSE 8080
- 
-ENV APP_HOME /usr/src/app
 
-COPY target/*.jar $APP_HOME/app.jar
-
-WORKDIR $APP_HOME
-
-CMD ["java", "-jar", "app.jar"]
+# Run the application
+ENTRYPOINT ["java","-jar","app.jar"]
