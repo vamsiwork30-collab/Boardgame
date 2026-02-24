@@ -1,31 +1,35 @@
 pipeline {
     agent any
-    
+
     tools {
-        maven 'maven3.6'
-        jdk 'jdk17'
+        jdk "jdk17"
+        maven "Maven"
     }
 
     stages {
-        
-        stage('Compile') {
+
+        stage('Git Checkout') {
             steps {
-             sh 'mvn compile'
+                git branch: 'main',
+                    changelog: false,
+                    poll: false,
+                    url: 'https://github.com/vamsiwork30-collab/Boardgame.git'
             }
         }
-        stage('test') {
+
+        stage('Maven Build') {
             steps {
-                sh 'mvn test'
+                sh "mvn clean package -DskipTests"
             }
         }
-        stage('Package') {
+
+        stage('Docker Build & Push') {
             steps {
-               sh 'mvn package'
-            }
-        }
-        stage('Hello') {
-            steps {
-                echo 'Hello World'
+                withDockerRegistry(credentialsId: 'dockertoken', url: 'https://index.docker.io/v1/') {
+                    sh "docker build -t boardgame ."
+                    sh "docker tag petclinic vamsipothabathuni1/boardgame:latest"
+                    sh "docker push vamsipothabathuni1/boardgame:latest"
+                }
             }
         }
     }
